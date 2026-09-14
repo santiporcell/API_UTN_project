@@ -2,12 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-
-##
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///materias.db'
 db= SQLAlchemy(app)
-
-##
 
 class Materia(db.Model):
     id = db. Column(db.Integer, primary_key=True)
@@ -20,7 +16,6 @@ class Correlativa(db.Model): #creo la relacion entre una materia con a q se requ
     requiere_id = db.Column(db.Integer, db.ForeignKey('materia.id'))
     tipo = db.Column(db.String(10))  # "regular" o "aprobada"
 
-##
 @app.route('/materias')
 def ver_materias():
     materias = Materia.query.all()
