@@ -32,7 +32,7 @@ def marcar_estado(id):
     materia=Materia.query.get(id)
     if materia is None:
         return jsonify({"error":"Materia no encontrada"}), 404
-    datos=request.get_json() #esto es lo que lee mi peticion POST y lo convierte a diccionario python 
+    datos=request.get_json() #esto es lo que lee mi peticion POST (curl -X POST http://127.0.0.1:5000/materias/1/estado -H "Content-Type: application/json" -d "{\"estado\": \"aprobada\"}") y lo convierte a diccionario python 
     nuevo_estado=datos.get('estado')
     if nuevo_estado not in ('pendiente', 'regular', 'aprobada'):
         return jsonify({"error":"estado debe ser pendiente, regular o aprobada"}), 400
