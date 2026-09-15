@@ -1,4 +1,4 @@
-from API_UTN_project import app, db, Materia, Correlativa  # desde el archivo de tu servidor "app.py" importas el servidor y la tabla
+from API_UTN_project import app, db, Materia, Correlativa, EstadoMateria  # desde el archivo de tu servidor "app.py" importas el servidor y la tabla
 from plan2023_materias import materias, correlativas
 
 with app.app_context():

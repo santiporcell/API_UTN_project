@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -15,6 +15,11 @@ class Correlativa(db.Model): #creo la relacion entre una materia con a q se requ
     materia_id = db.Column(db.Integer, db.ForeignKey('materia.id'))
     requiere_id = db.Column(db.Integer, db.ForeignKey('materia.id'))
     tipo = db.Column(db.String(10))  # "regular" o "aprobada"
+class EstadoMateria(db.Model):
+    id=db.Column(db.Integer, primary_key=True)
+    materia_id=db.Column(db.Integer, db.ForeignKey('materia.id'), unique=True, nullable=False)
+    estado=db.Column(db.String(20),nullable=False, default='pendiente')
+
 
 @app.route('/materias')
 def ver_materias():
@@ -22,11 +27,32 @@ def ver_materias():
     resultado = [{"id": m.id, "nombre": m.nombre, "anio": m.anio} for m in materias]
     return {"materias": resultado}
 
-@app.route('/puedo-cursar/<regularizadas>/<aprobadas>')
-def puedo_cursar(regularizadas, aprobadas): # todo loq yoponga en el navegador en <regularizas seran ahora los datos de las materias que regularicé y lo mismo para las aprobadas
+@app.route('/materias/<int:id>/estado', methods=['POST'])
+def marcar_estado(id):
+    materia=Materia.query.get(id)
+    if materia is None:
+        return jsonify({"error":"Materia no encontrada"}), 404
+    datos=request.get_json() #esto es lo que lee mi peticion POST y lo convierte a diccionario python 
+    nuevo_estado=datos.get('estado')
+    if nuevo_estado not in ('pendiente', 'regular', 'aprobada'):
+        return jsonify({"error":"estado debe ser pendiente, regular o aprobada"}), 400
 
-    ids_regularizados = [int(x) for x in regularizadas.split(',')] if regularizadas != '0' else []
-    ids_aprobados = [int(x) for x in aprobadas.split(',')] if aprobadas != '0' else []
+    estado_materia=EstadoMateria.query.filter_by(materia_id=id).first()
+    if estado_materia is None:
+        estado_materia = EstadoMateria(materia_id=id, estado=nuevo_estado)
+        db.session.add(estado_materia)
+    else:
+        estado_materia.estado = nuevo_estado
+
+    db.session.commit()
+    return jsonify({"materia_id": id, "estado": estado_materia.estado}), 200
+
+@app.route('/puedo-cursar')
+def puedo_cursar():
+
+    ids_regularizados = [e.materia_id for e in EstadoMateria.query.filter_by(estado='regular').all()]
+    ids_aprobados = [e.materia_id for e in EstadoMateria.query.filter_by(estado='aprobada').all()]
+
     disponibles = []
 
     for materia in Materia.query.all():
