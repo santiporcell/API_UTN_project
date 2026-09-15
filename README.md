@@ -103,4 +103,4 @@ Calcula qué materias se pueden cursar en base a los estados ya guardados (marca
 
 ## 👤 Autor
 
-Santiago Porcell — Estudiante de Ingeniería en Sistemas (UTN)
+Santiago Porcel — Estudiante de Ingeniería en Sistemas (UTN)
